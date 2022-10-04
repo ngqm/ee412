@@ -2,7 +2,7 @@
 Filename: hw1_2.py
 Author: Quang Minh Nguyen
 
-Submission for homework 1, task 1
+Submission for homework 1, task 2
 References: EE412 lecture slides
 """
 
@@ -110,8 +110,8 @@ def get_triangular_matrix(sessions, item_ids, frequent_item_count, frequent_item
     triangular_matrix = [0] * int(m * (m - 1) / 2)
     from_k_to_ij = {}
     for session in sessions:
-        frequent_items = [frequent_items_table[item_ids.index(item)] 
-            for item in session if frequent_items_table[item_ids.index(item)] != 0]
+        frequent_items = sorted([frequent_items_table[item_ids.index(item)]
+            for item in session if frequent_items_table[item_ids.index(item)] != 0])
         for i, item_i in enumerate(frequent_items[:-1]):
             for item_j in frequent_items[i+1:]:
                 k = int((item_i - 1) * (m - item_i/2)) + item_j - item_i
@@ -157,7 +157,7 @@ if __name__=='__main__':
     frequent_item_count, frequent_items_table = get_frequent_items_table(item_counts, SUPPORT)
     triangular_matrix, from_k_to_ij = get_triangular_matrix(sessions, item_ids, frequent_item_count, frequent_items_table)
     frequent_pair_count = len([count for count in triangular_matrix if count >= SUPPORT])
-    most_frequent_pairs = get_most_frequent_pairs(triangular_matrix, SUPPORT, frequent_items_table, from_k_to_ij, item_ids)
+    most_frequent_pairs = get_most_frequent_pairs(triangular_matrix, frequent_items_table, from_k_to_ij, item_ids)
     
     print(frequent_item_count)
     print(frequent_pair_count)
