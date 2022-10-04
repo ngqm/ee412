@@ -78,6 +78,10 @@ def get_potential_friends(labeled_triple):
 
 if __name__=='__main__':
 
+    from time import time
+
+    start = time()
+
     conf = SparkConf()
     conf.set('spark.logConf', 'true')
     # starts a Spark context 
@@ -102,3 +106,5 @@ if __name__=='__main__':
     for result in results:
         f1, f2, count = result
         print(f1, f2, count, sep='\t')
+
+    print(time() - start)
