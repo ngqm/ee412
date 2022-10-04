@@ -195,25 +195,15 @@ def get_similar_pairs(candidates, documents, threshold):
 
 if __name__=='__main__':
 
-    from time import time
-
     # hyperparameters
     B = 6
     R = 20
     THRESHOLD = 0.9
 
-    start = time()    
     documents, document_ids = preprocess(sys.argv[1])
-    print('Preprocessing time: {} seconds'.format(time()-start))
-    start = time()
     signature_matrix = get_signature_matrix(documents, B*R)
-    print('Signature matrix time: {} seconds'.format(time()-start))
-    start = time()
     candidates = get_candidates(signature_matrix, B, R)
-    print('Candidate pairs time: {} seconds'.format(time()-start))
-    start = time()
     similar_pairs = get_similar_pairs(candidates, documents, THRESHOLD)
-    print('Similar pairs time: {} seconds'.format(time()-start))
 
     for pair in similar_pairs:
         document1, document2 = pair
