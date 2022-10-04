@@ -8,6 +8,7 @@ References: EE412 lecture slides, MMDS book
 
 
 import numpy as np
+import sys
 
 
 def is_prime(n):
@@ -83,9 +84,9 @@ def preprocess(file):
     documents = []
     document_ids = []
     for line in lines:
-        first_tab = line.find('\t')
-        document_id = line[:first_tab]
-        text = line[first_tab+1:]
+        first_space = line.find(' ')
+        document_id = line[:first_space]
+        text = line[first_space+1:]
         text = ''.join([c.lower() for c in text if c.isalpha() or c==' '])
         shingles = set()
         for i in range(len(text)-2):
@@ -202,7 +203,7 @@ if __name__=='__main__':
     THRESHOLD = 0.9
 
     start = time()    
-    documents, document_ids = preprocess('articles.txt')
+    documents, document_ids = preprocess(sys.argv[1])
     print('Preprocessing time: {} seconds'.format(time()-start))
     start = time()
     signature_matrix = get_signature_matrix(documents, B*R)
@@ -215,4 +216,5 @@ if __name__=='__main__':
     print('Similar pairs time: {} seconds'.format(time()-start))
 
     for pair in similar_pairs:
-        print("{}\t{}".format(document_ids[pair[0]], document_ids[pair[1]]))
+        document1, document2 = pair
+        print("{}\t{}".format(document_ids[document1], document_ids[document2]))
