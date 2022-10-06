@@ -135,7 +135,6 @@ def get_candidates(signature_matrix, n_bands, n_rows):
             (n_hash_functions, len(documents))
         n_bands: int, number of bands
         n_rows: int, number of rows per band
-        threshold: float, threshold for similarity
 
     Returns:
         candidates: set[frozenset[int]], set of candidate pairs
