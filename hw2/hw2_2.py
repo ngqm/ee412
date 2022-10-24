@@ -31,8 +31,7 @@ def get_eigenpairs(A, k, epsilon):
         eigenpairs: list[(float, ndarray)], a list containing 
             the first k eigenpairs of A
     """
-    n = A.shape[0]
-    # gets a random vector
+    # gets the initial vector
     x = np.array([1, 1, 1])
     # sequentially computes all eigenpairs of A using power iteration
     eigenpairs = []

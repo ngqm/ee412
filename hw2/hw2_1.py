@@ -134,6 +134,10 @@ def get_average_diameter(k_value, dataset):
         .map(lambda x: [e for e in x[1]]) \
         .map(lambda x: get_diameter(x, dataset)) \
         .reduce(lambda x, y: x + y)
+    
+    # stops the Spark context
+    sc.stop()
+
     average_diameter = result / k_value
 
     return average_diameter
@@ -152,4 +156,3 @@ if __name__== '__main__':
     
     # prints the result
     print(average_diameter)
-    
