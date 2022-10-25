@@ -146,8 +146,7 @@ def get_average_diameter(k_value, dataset):
 if __name__== '__main__':
 
     # reads the dataset
-    with open(sys.argv[1], 'r') as f:
-        dataset = [np.array([float(x) for x in line.split()]) for line in f]
+    dataset = np.loadtxt(sys.argv[1])
     # reads k 
     k_value = int(sys.argv[2])
 
