@@ -2,7 +2,7 @@
 Filename: hw2_2.py
 Author: Quang Minh Nguyen
 
-Python source code for homework 2, task 3b
+Python source code for homework 2, task 3c
 References: Mining of Massive Datasets, Chapter 9
 """
 
@@ -102,17 +102,9 @@ def find_most_similar_users(user, utility_matrix):
         stable_norm = np.array([norm(u) if norm(u) > 0 else 1 
             for u in utility_matrix])
         similarities = unnormed_similarities / stable_norm
-    # gets the 10 most similar users excluding user themselves
-    most_similar = sorted(range(len(similarities)), key=lambda k: (-similarities[k], k))
-    count = 0
-    new_most_similar = []
-    for u in most_similar:
-        if u != user:
-            new_most_similar += [u]
-            count += 1
-            if count == 10:
-                break
-    most_similar = new_most_similar
+    # gets the 10 most similar users
+    # excludes user themselves, hence [-11:-1]
+    most_similar = np.argsort(similarities)[-11:-1]
     return most_similar
 
 
@@ -146,18 +138,7 @@ def find_most_similar_movies(movie, pool, utility_matrix):
             for m in other_ratings.T])
         similarities = unnormed_similarities / stable_norm
     # gets the 10 most similar movies' indices
-    # excluding movie itself
-    most_similar = sorted(range(len(similarities)), key=lambda k: (-similarities[k], k))
-    count = 0
-    new_most_similar = []
-    for m in most_similar:
-        if m != movie:
-            new_most_similar += [m]
-            count += 1
-            if count == 10:
-                break
-    most_similar = new_most_similar
-    most_similar = pool[most_similar]
+    most_similar = pool[np.argsort(similarities)[-10:]]
     return most_similar
 
 
@@ -194,71 +175,5 @@ def predict(user, movie, method, utility_matrix, unnormalised_utility, pool=None
     return average_rating
 
 
-def find_top_movies(user, movies_inverted, method, utility_matrix, unnormalised_utility, pool=None):
-    """
-    Find the top 5 movies among movies 1 to 1000 for a user with
-    the highest predicted rating.
-
-    Parameters:
-        user: int, the user index
-        movies_inverted: dict, a dictionary that maps movie ids
-            to their indices in the utility matrix
-        method: str, either 'user', meaning user-based,
-            or 'item', meaning item-based
-        utility_matrix: ndarray, a normalised
-            utility matrix
-        unnormalised_utility: ndarray, an unnormalised
-            utility matrix
-        pool: ndarray, a list of movie ids that we want
-            to find the most similar movies from. Required 
-            only if method is 'item'. Default is None.
-    
-    Returns:
-        top_movies: list, a list of the top 5 movies
-            for the user
-        predicted_ratings: list, a list of the predicted
-            ratings for the top 5 movies
-    """
-    # finds the predicted ratings for all movies
-    predicted_ratings = np.zeros(1000)
-    for movie_id in range(1, 1001):
-        if movie_id in movies_inverted:
-            predicted_ratings[movie_id-1] = predict(
-                user, movies_inverted[movie_id], method, 
-                utility_matrix, unnormalised_utility,
-                pool)
-    # gets the top 5 movies and their predictions
-    # if two movies have the same predicted rating,
-    # the one with the lower id is ranked higher
-    movies_and_ratings = sorted(
-        zip(range(1000), predicted_ratings), 
-        key=lambda x: (-x[1], x[0]))[:5]
-    top_movies = [m+1 for m, _ in movies_and_ratings]
-    predicted_ratings = [r for _, r in movies_and_ratings]
-    return top_movies, predicted_ratings
-
-
 if __name__=='__main__':
-    
-    # constant
-    U = 600
-
-    # extracts the data
-    users, users_inverted, movies, movies_inverted, M, uM = \
-        get_utility_matrix(sys.argv[1])
-    # gets indices of movies with ids outside of range(1, 1001)
-    MOVIES = np.array([movies_inverted[i] for i in movies_inverted.keys() 
-                        if i > 1000 or i < 1])
-
-    # gets top-5 movies with highest predicted ratings using user-based method
-    top5_user, predicted_ratings = find_top_movies(
-        users_inverted[U], movies_inverted,
-        'user', M, uM)
-    for movie, rating in zip(top5_user, predicted_ratings):
-        print(f'{movie}\t{rating}')
-    # gets top-5 movies with highest predicted ratings using item-based method
-    top5_item, predicted_ratings = find_top_movies(
-        users_inverted[U], movies_inverted,
-        'item', M, uM, MOVIES)
-    for movie, rating in zip(top5_item, predicted_ratings):
-        print(f'{movie}\t{rating}')
+    pass 
