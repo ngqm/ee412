@@ -1,5 +1,5 @@
 """
-Filename: hw2_2.py
+Filename: hw2_3b.py
 Author: Quang Minh Nguyen
 
 Python source code for homework 2, task 3b
@@ -14,7 +14,7 @@ from numpy.linalg import norm
 def mean(array):
     """
     An enhanced version of numpy.mean that returns 0
-    instead of np.nan for empty arrays.
+    instead of numpy.nan for empty arrays.
 
     Parameter:
         array: ndarray
@@ -123,7 +123,7 @@ def find_most_similar_movies(movie, pool, utility_matrix):
 
     Parameters:
         movie: int, the movie index
-        pool: ndarray, a list of movie ids that we want
+        pool: ndarray, a list of movie indices that we want
             to find the most similar movies from
         utility_matrix: ndarray, a normalised
             utility matrix
@@ -205,14 +205,7 @@ def find_top_movies(user, movies_inverted, method, utility_matrix, unnormalised_
             to their indices in the utility matrix
         method: str, either 'user', meaning user-based,
             or 'item', meaning item-based
-        utility_matrix: ndarray, a normalised
-            utility matrix
-        unnormalised_utility: ndarray, an unnormalised
-            utility matrix
-        pool: ndarray, a list of movie ids that we want
-            to find the most similar movies from. Required 
-            only if method is 'item'. Default is None.
-    
+method   
     Returns:
         top_movies: list, a list of the top 5 movies
             for the user
