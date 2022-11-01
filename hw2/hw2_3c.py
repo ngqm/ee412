@@ -261,7 +261,7 @@ def rmse(predictions, targets):
     return rmse
 
 
-def get_cross_validate_error(dataset, method, k=20):
+def get_cross_validate_error(dataset, method, k=10):
     """
     Performs k-fold cross validation on the dataset.
     Returns the average RMSE.
