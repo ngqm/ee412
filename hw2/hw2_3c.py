@@ -4,26 +4,34 @@ Author: Quang Minh Nguyen
 
 Python source code for homework 2, task 3c
 References: Mining of Massive Datasets, Chapter 9
+
+TODO: use the id system instead of the index system
+and make use of scipy sparse arrays
 """
 
 import sys
 import numpy as np
 from numpy.linalg import norm
+from scipy.sparse import csr_array
 
 
-def mean(array):
+def mean(array, condition_array=None, default=0):
     """
     An enhanced version of numpy.mean that returns 0
     instead of numpy.nan for empty arrays.
 
     Parameter:
         array: ndarray
+        condition_array: ndarray, an array on which 
+
+        default: float, the default value to return
+            when array is full of 0s
     
     Returns:
         m: float, the mean of the array
     """
     if len(array[array != 0]) == 0:
-        m = 0
+        m = default
     else:
         m = np.mean(array[array != 0])
     return m
@@ -67,41 +75,23 @@ def get_utility_matrix(file=None, dataset=None):
             Required if file is None.
     
     Returns:
-        users, movies, utility_matrix, unnormalised_utility:
-            users: ndarray, a list of user ids
-            users_inverted: dict, a dictionary mapping
-                user ids to user indices
-            movies: ndarray, a list of movie ids
-            movies_inverted: dict, a dictionary mapping
-                movie ids to movie indices
-            utility_matrix: ndarray, a normalised
-                utility matrix
-            unnormalised_utility: ndarray, an unnormalised
-                utility matrix
+        utility: scipy.sparse.csr_array, a normalised
+            utility matrix
+        normalised_utility: scipy.sparse.csr_array, 
+            an unnormalised utility matrix
     """
     if dataset is None:
         # reads in the data
         dataset = get_dataset(file)
-    # creates users and movies arrays
-    users   = np.sort(np.unique(dataset[:, 0])).astype(int)
-    users_inverted = {users[i]: i for i in range(len(users))}
-    movies  = np.sort(np.unique(dataset[:, 1])).astype(int)
-    movies_inverted = {movies[i]: i for i in range(len(movies))}
-    # initilises the utility matrix with zeros
-    utility_matrix = np.zeros((len(users), len(movies)))
-    # fills in the utility matrix
-    for row in dataset:
-        user    = int(row[0])
-        movie   = int(row[1])
-        rating  = row[2]
-        utility_matrix[users_inverted[user], movies_inverted[movie]] = rating
-    unnormalised_utility = utility_matrix.copy()
+    # creates the sparse utility matrix
+    utility = csr_array((dataset[:,2], (dataset[:,0], dataset[:,1])))
     # normalises the utility matrix
-    for i in range(len(users)):
-        row = utility_matrix[i]
-        row[row != 0] -= mean(row)
-    return users, users_inverted, movies, movies_inverted, \
-        utility_matrix, unnormalised_utility
+    normalised_utility = utility.copy()
+    for i in range(utility.shape[0]):
+        row = utility.getrow(i)
+        normalised_utility.data[utility.indptr[i]:utility.indptr[i+1]] = \
+            row.data - row.data.mean()
+    return utility, normalised_utility
 
 
 def find_most_similar_users(user, utility_matrix):
@@ -209,20 +199,30 @@ def predict(user, movie, method, utility_matrix, unnormalised_utility, pool=None
     """
     if method == 'user':
         if movie != -1 and user != -1:
+            # gets the 10 most similar users
             most_similar = find_most_similar_users(user, utility_matrix)
-            # find the average rating of the movie among these 10 users
-            col = unnormalised_utility[most_similar, movie]
-            average_rating = mean(col)
+            # finds the users among these who have rated movie
+            # and computes the average normalised rating of them on movie
+            eligible = [u for u in most_similar if unnormalised_utility[u, movie] != 0]
+            if len(eligible) == 0:
+                average_rating = 0
+            else:
+                average_rating = np.mean(utility_matrix[eligible, movie])
+            # finds the average rating of user to all movies
+            average_user_rating = mean(unnormalised_utility[user])
+            # adds them up
+            average_rating += average_user_rating
         elif movie == -1 and user != -1:
             # find the average rating of the user
-            row = unnormalised_utility[user]
-            average_rating = mean(row)
+            average_user_rating = mean(unnormalised_utility[user])
+            average_rating = average_user_rating
         elif movie != -1 and user == -1:
             # find the average rating of the movie
             col = unnormalised_utility[:, movie]
             average_rating = mean(col)
         else:
             # find the average rating of all movies
+            print('triggered!')
             average_rating = mean(unnormalised_utility)
     elif method == 'item':
         if movie != -1 and user != -1:
@@ -279,14 +279,17 @@ def get_cross_validate_error(dataset, method, k=10):
     """
     # splits the dataset into k folds
     np.random.shuffle(dataset)
+    # dataset = dataset
     folds = np.array_split(dataset, k)
     # computes the average rmse
     rmse_sum = 0
     for i in range(k):
         # gets the test set
         test = folds[i]
+        print(len(test))
         # gets the training set
         train = np.concatenate(folds[:i] + folds[i+1:])
+        print(len(train))
         # gets the utility matrix
         users, users_inverted, movies, movies_inverted, \
             utility_matrix, unnormalised_utility = get_utility_matrix(dataset=train)
@@ -304,6 +307,8 @@ def get_cross_validate_error(dataset, method, k=10):
             predictions += [prediction]
             targets += [target]
         # computes the rmse
+        print(predictions)
+        print(targets)
         rmse_sum += rmse(np.array(predictions), np.array(targets))
     average_rmse = rmse_sum / k
     return average_rmse
