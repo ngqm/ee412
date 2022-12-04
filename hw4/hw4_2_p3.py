@@ -184,6 +184,9 @@ if __name__=='__main__':
     # reads in parameters
     stream = sys.argv[1]
     k_array = [int(k) for k in sys.argv[2:]]
+    if len(k_array) == 0:
+        sys.exit()
+
     sorted_indices, sorted_k_array = zip(*sorted(enumerate(k_array), key=lambda x: x[1]))
     sorted_indices = list(sorted_indices)
     sorted_k_array = list(sorted_k_array)
