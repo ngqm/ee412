@@ -6,12 +6,7 @@ Submission for Homework 4, Problem 2, using Python 3.
 References: MMDS book, Section 4.6
 """
 
-# math operations
-import numpy
-import math
 # file IO
-import csv
-import os
 import sys
 
 
