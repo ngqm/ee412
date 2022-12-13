@@ -107,6 +107,12 @@ M = [
     [1/3, 0, 1/2],
     [1/3, 1/2, 1/2]]
 
+M = [
+    [0, 1/2, 0, 0],
+    [1/3, 0, 0, 1/2],
+    [1/3, 0, 1, 1/2],
+    [1/3, 1/2, 0, 0]]
+
 EPSILON = 1e-8
 BETA = .8
 print("Exercise 5.1.2\nPageRank:\n", get_pagerank(M=M, beta=BETA, tol=EPSILON))
